@@ -1,0 +1,178 @@
+<html lang="ja">
+
+<head>
+    <!-- Recommended meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- PyScript CSS -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+    <!-- This script tag bootstraps PyScript -->
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <style>
+        img,
+        picture, 
+        video {
+            max-width: 100%;
+        }
+
+        .file-button{ 
+            // 「選択されていません（選択後はファイル名）」のスタイル
+            font-size: 35px;
+        }
+
+        .file-button::file-selector-button {
+            // 「ファイルを選択」ボタンのスタイル
+            font-weight: bold;
+            color: black;
+            background: PaleTurquoise;
+            font-size: 50px;
+            border: 0;
+            border-radius: 10em;
+            padding: 8px 16px;
+            text-align: center;
+        }
+        .btn {
+            width: 2000px;
+            height: 100px;
+            font-size: 35px;
+            text-align: center;
+            padding: 20px 30px;
+            background-color: PaleTurquoise;
+            display: inline;
+            text-decoration: none;
+            color: black;
+            border-radius: 7px;
+        }
+        .dlink {
+            width: 2000px;
+            height: 100px;
+            font-size: 35px;
+            text-align: center;
+            padding: 20px 30px;
+            background-color: PaleTurquoise;
+            text-decoration: none;
+            color: black;
+            border-radius: 7px;
+        }
+        .btn.btn:active{
+            background: rgb(172, 172, 172);
+        }
+    </style>
+</head>
+
+<body>
+    <input name="myfile" type="file" accept=".jpg,.png" onchange="fileup(this)" class="file-button" multiple/>
+    <a href="#" class="btn" id="button">WaterMark</a>
+    <a href="dummy" download class="dlink" id="dlbtn" style="display:none">画像を保存</a><br>
+    ウォーターマークを入れます<br>
+    ※ウォーターマーク用の透過PNGと入れる用のJPEGを選択します。 個別に選択できます。
+    ファイルを選択して画像が表示されてから”WaterMark"を一回押してください、
+    ボタンの色が元に戻り、保存ボタンが表示されると処理された画像が表示されます、
+    ボタンを押し保存してお使いください。元の写真には影響ありません。<br>
+    何かエラーが出たらブラウザを更新してください。<br>
+    スマホの場合に起こる現象(10/2時点)<br>
+    ・画像サイズが縮小されます<br>
+    ・アルファチャンネルのグラデーションには対応してません<br>
+    <hr>
+    <div>
+        <img id="img0"/>
+        <img id="img1"/>
+    </div>
+    <py-config>
+    {
+        "packages" : ["Pillow","opencv-python","numpy"]
+    }
+    </py-config>
+    <py-script>
+        import cv2 as cv
+        import numpy as np
+        import base64
+        from io import BytesIO
+        import sys
+        from pyscript import when, display
+        from pyscript.web import img, page
+
+        b64_header1 = 'data:image/png;base64,'
+        b64_header2 = 'data:image/jpeg;base64,'
+        @when("click", "#button")
+        def click_handler(event):
+            dl = page['a']
+            my_input = page["img"]
+            img_binary1 = base64.b64decode(my_input[0].src[len(b64_header1):])
+            img_binary2 = base64.b64decode(my_input[1].src[len(b64_header2):])
+            img_b64 = wm_print(img_binary1,img_binary2)
+            my_input[1].src = b64_header2 + img_b64
+            in_name = my_input[1].alt
+            display(in_name)
+            name_arr = in_name.split('\\')
+            out_name = name_arr[-1].replace('.','_wm.')
+            dl[1].download = out_name
+            dl[1].href = b64_header2 + img_b64
+            dl[1].style = "display:inline"
+
+        
+        def wm_print(path1,path2):
+            png = np.frombuffer(path1,dtype=np.uint8)
+            jpg = np.frombuffer(path2,dtype=np.uint8)
+            front_img = cv.imdecode(png, cv.IMREAD_UNCHANGED)
+            hide_img = cv.imdecode(jpg, cv.IMREAD_COLOR)
+
+            f_s = np.shape(front_img)
+            h_s = np.shape(hide_img)
+
+            cvt_img = cv.cvtColor(front_img,cv.COLOR_BGRA2BGR)
+            mask_img = front_img[:,:,3] > 192
+
+            posi = 'br' #tl,ml,bl,bc,br,mr,tr,tc,mc
+
+            if 'r' in posi:
+                x=h_s[1] - f_s[1]
+            elif 'c' in posi:
+                x=int(h_s[1]/2 - f_s[1]/2)
+            elif 'l' in posi:
+                x=0
+
+            if 't' in posi:
+                y=0
+            elif 'c' in posi:
+                y=int(h_s[0]/2 - f_s[0]/2)
+            elif 'b' in posi:
+                y=h_s[0] - f_s[0]
+
+            hide_img[y:y+f_s[0],x:x+f_s[1],:] = ~mask_img[:,:,None] * hide_img[y:y+f_s[0],x:x+f_s[1],:] + mask_img[:,:,None] * cvt_img
+
+            out_img = hide_img
+            encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
+            retval, buf = cv.imencode('.jpg', out_img, encord_param)
+            img_str = base64.b64encode(buf).decode('ascii')
+
+            del hide_img
+            del front_img
+
+            return img_str
+    </py-script>
+    <script>
+        function fileup(obj)
+        {
+            for (i = 0; i < obj.files.length; i++){
+                dlb = document.getElementById('dlbtn');
+                var fileReader = new FileReader();
+                fileReader.onload = (function (e) {
+                    if (e.target.result.match(/png;/)){
+                        img = document.getElementById('img0');
+                    }else{
+                        img = document.getElementById('img1');
+                    }
+                    img.src = e.target.result;
+                    dlb.style = "display:none";
+                });
+                fileReader.readAsDataURL(obj.files[i]);
+                if (obj.files[i].type.match(/jpeg/)){
+                    document.getElementById('img1').alt = obj.files[i].name;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
