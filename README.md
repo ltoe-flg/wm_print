@@ -1,7 +1,7 @@
 # wm_print
 写真にウォーターマークを追加します  
 こちらへアクセスしてください  
-https://ltoe-flg.github.io/Red_or_Gray/wm_print.html  
+https://ltoe-flg.github.io/wm_print/wm_print.html  
 使い方  
 1.ウォーターマーク用の透過PNGと追加する用のJPEGファイルを選択します。(個別に選択できます)  
 2.画像が表示されたら”WaterMark"を一回押してください  
