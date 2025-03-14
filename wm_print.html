@@ -57,6 +57,9 @@
         .btn.btn:active{
             background: rgb(172, 172, 172);
         }
+        .select{
+            font-size: 40px;
+        }
     </style>
 </head>
 
@@ -64,6 +67,17 @@
     <input name="myfile" type="file" accept=".jpg,.png" onchange="fileup(this)" class="file-button" multiple/>
     <a href="#" class="btn" id="button">WaterMark</a>
     <a href="dummy" download class="dlink" id="dlbtn" style="display:none">画像を保存</a><br>
+    <select id="place" class="select">
+        <option value="bl">Bottom Left</option>
+        <option value="bc">Bottom Center</option>
+        <option value="br">Bottom Right</option>
+        <option value="ml">Middle Left</option>
+        <option value="mc">Middle Center</option>
+        <option value="mr">Middle Right</option>
+        <option value="tl">Top Left</option>
+        <option value="tc">Top Center</option>
+        <option value="tr">Top Right</option>
+    </select><br>
     ウォーターマークを入れます<br>
     ※ウォーターマーク用の透過PNGと入れる用のJPEGを選択します。 個別に選択できます。
     ファイルを選択して画像が表示されてから”WaterMark"を一回押してください、
@@ -123,8 +137,9 @@
             cvt_img = cv.cvtColor(front_img,cv.COLOR_BGRA2BGR)
             mask_img = front_img[:,:,3] > 192
 
-            posi = 'br' #tl,ml,bl,bc,br,mr,tr,tc,mc
-
+            sel = page["select"]
+            posi = sel[0].value
+        
             if 'r' in posi:
                 x=h_s[1] - f_s[1]
             elif 'c' in posi:
