@@ -66,8 +66,6 @@
 
 <body>
     <input name="myfile" type="file" accept=".jpg,.png" onchange="fileup(this)" class="file-button" multiple/>
-    <a href="#" class="btn" id="button">Add waterMark</a>
-    <a href="dummy" download class="dlink" id="dlbtn" style="display:none">画像を保存</a><br>
     <select id="place" class="select">
         <option value="bl">Bottom Left</option>
         <option value="bc">Bottom Center</option>
@@ -79,6 +77,8 @@
         <option value="tc">Top Center</option>
         <option value="tr">Top Right</option>
     </select><br>
+    <a href="#" class="btn" id="button">Add waterMark</a>
+    <a href="dummy" download class="dlink" id="dlbtn" style="display:none">画像を保存</a><br>
     写真にウォーターマークを入れます<br>
     ※ウォーターマーク用の透過PNGと入れる用のJPEGを選択します。 個別に選択できます。
     入れる場所を選択し”Add WaterMark"を一回押してください、
