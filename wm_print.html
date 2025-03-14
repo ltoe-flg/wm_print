@@ -117,7 +117,6 @@
             img_b64 = wm_print(img_binary1,img_binary2)
             my_input[1].src = b64_header2 + img_b64
             in_name = my_input[1].alt
-            display(in_name)
             name_arr = in_name.split('\\')
             out_name = name_arr[-1].replace('.','_wm.')
             dl[1].download = out_name
