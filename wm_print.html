@@ -139,7 +139,7 @@
             else:
                 ratio = h_s[1]*0.06/f_s[1]
 
-            front_img = cv.resize(front_img,None,fx = ratio,fy = ratio,interpolation=cv2.INTER_NEAREST_EXACT)
+            front_img = cv.resize(front_img,None,fx = ratio,fy = ratio,interpolation=cv.INTER_NEAREST_EXACT)
             f_s = np.shape(front_img)
 
             cvt_img = cv.cvtColor(front_img,cv.COLOR_BGRA2BGR)
