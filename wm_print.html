@@ -132,8 +132,15 @@
             front_img = cv.imdecode(png, cv.IMREAD_UNCHANGED)
             hide_img = cv.imdecode(jpg, cv.IMREAD_COLOR)
 
-            f_s = np.shape(front_img)
             h_s = np.shape(hide_img)
+            f_s = np.shape(front_img)
+            if h_s[0] < h_s[1]:
+                ratio = h_s[0]*0.06/f_s[0]
+            else:
+                ratio = h_s[1]*0.06/f_s[1]
+
+            front_img = cv.resize(front_img,None,fx = ratio,fy = ratio,interpolation=cv2.INTER_NEAREST_EXACT)
+            f_s = np.shape(front_img)
 
             cvt_img = cv.cvtColor(front_img,cv.COLOR_BGRA2BGR)
             mask_img = front_img[:,:,3] > 192
